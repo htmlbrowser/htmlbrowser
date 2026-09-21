@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein HTML Browser</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f2f5;
+        }
+
+        /* Navigationsleiste oben */
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+
+        .navbar button {
+            padding: 8px 12px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .navbar button:hover {
+            background-color: #777;
+        }
+
+        .address-bar {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Anzeige-Bereich (Iframe) */
+        .content {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigationsleiste -->
+    <div class="navbar">
+        <button id="backBtn" title="Zurück">←</button>
+        <button id="forwardBtn" title="Vor">→ </button>
+        <button id="reloadBtn" title="Neu laden">↻</button>
+        
+        <input type="text" id="urlInput" class="address-bar" placeholder="URL eingeben (z.B. https://wikipedia.org) oder Suchbegriff..." />
+        
+        <button id="goBtn">Los</button>
+    </div>
+
+    <!-- Webseiten-Anzeigebereich -->
+    <iframe id="webFrame" class="content" src="https://www.bing.com"></iframe>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const goBtn = document.getElementById('goBtn');
+        const backBtn = document.getElementById('backBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+        const reloadBtn = document.getElementById('reloadBtn');
+        const webFrame = document.getElementById('webFrame');
+
+        // Funktion zum Laden einer Seite
+        function navigate() {
+            let query = urlInput.value.trim();
+            if (!query) return;
+
+            // Überprüfen, ob es eine URL oder eine Suche ist
+            if (!query.startsWith('http://') && !query.startsWith('https://')) {
+                if (query.includes('.') && !query.includes(' ')) {
+                    query = 'https://' + query;
+                } else {
+                    // Wenn es keine Domain ist, starte eine Suche bei Bing
+                    query = 'https://www.bing.com/search?q=' + encodeURIComponent(query);
+                }
+            }
+
+            webFrame.src = query;
+            urlInput.value = query;
+        }
+
+        // Event-Listener
+        goBtn.addEventListener('click', navigate);
+
+        // Enter-Taste in der Adressleiste abfangen
+        urlInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                navigate();
+            }
+        });
+
+        // Navigationstasten
+        reloadBtn.addEventListener('click', () => {
+            webFrame.contentWindow.location.reload();
+        });
+
+        backBtn.addEventListener('click', () => {
+            window.history.back(); // Hinweis: Funktioniert aufgrund von Sicherheitsbeschränkungen nur eingeschränkt bei Iframes
+        });
+
+        forwardBtn.addEventListener('click', () => {
+            window.history.forward();
+        });
+    </script>
+
+</body>
+</html>
