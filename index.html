@@ -1,132 +1,123 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mein HTML Browser</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My HTML Browser</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background-color: #121212; color: #ffffff; display: flex; flex-direction: column; height: 100vh; }
+    
+    /* Navigation Bar */
+    .navbar { display: flex; gap: 8px; padding: 10px; background-color: #1f1f1f; align-items: center; }
+    .navbar input { flex: 1; padding: 8px 12px; border-radius: 4px; border: 1px solid #444; background: #2b2b2b; color: white; }
+    .navbar button { padding: 8px 12px; background: #333; color: white; border: 1px solid #555; border-radius: 4px; cursor: pointer; }
+    .navbar button:hover { background: #444; }
+    .navbar .btn-primary { background: #007acc; border: none; }
+    .navbar .btn-primary:hover { background: #005999; }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background-color: #f0f2f5;
-        }
+    /* Main Container */
+    .content { flex: 1; position: relative; }
+    iframe { width: 100%; height: 100%; border: none; background: white; }
 
-        /* Navigationsleiste oben */
-        .navbar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background-color: #333;
-            color: white;
-        }
+    /* Home Info Page */
+    .homepage { padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+    .homepage h1 { margin-bottom: 10px; color: #007acc; }
+    .homepage p { margin-bottom: 20px; color: #ccc; }
+    
+    .shortcuts { display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+    .shortcut-btn { padding: 10px 15px; background: #2d2d2d; border: 1px solid #444; color: #00ffcc; text-decoration: none; border-radius: 6px; cursor: pointer; }
+    .shortcut-btn:hover { background: #3d3d3d; }
 
-        .navbar button {
-            padding: 8px 12px;
-            background-color: #555;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .navbar button:hover {
-            background-color: #777;
-        }
-
-        .address-bar {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            outline: none;
-        }
-
-        /* Anzeige-Bereich (Iframe) */
-        .content {
-            flex: 1;
-            width: 100%;
-            border: none;
-            background-color: white;
-        }
-    </style>
+    .notice-box { background: #262626; border-left: 4px solid #ff9800; padding: 15px; border-radius: 4px; }
+    .notice-box h3 { color: #ff9800; margin-bottom: 5px; }
+  </style>
 </head>
 <body>
 
-    <!-- Navigationsleiste -->
-    <div class="navbar">
-        <button id="backBtn" title="Zurück">←</button>
-        <button id="forwardBtn" title="Vor">→ </button>
-        <button id="reloadBtn" title="Neu laden">↻</button>
-        
-        <input type="text" id="urlInput" class="address-bar" placeholder="URL eingeben (z.B. https://wikipedia.org) oder Suchbegriff..." />
-        
-        <button id="goBtn">Los</button>
+  <!-- Navigation -->
+  <div class="navbar">
+    <!-- Zurück & Vorwärts Buttons -->
+    <button onclick="goBack()" title="Back">⬅️</button>
+    <button onclick="goForward()" title="Forward">➡️</button>
+    <button onclick="goHome()" title="Home">🏠</button>
+    
+    <input type="text" id="urlInput" placeholder="Enter URL (e.g. https://www.wikipedia.org)...">
+    <button class="btn-primary" onclick="loadUrl()">Go</button>
+  </div>
+
+  <!-- Browser Screen -->
+  <div class="content">
+    <!-- Homepage Content -->
+    <div id="homePage" class="homepage">
+      <h1>Welcome to WebBrowser</h1>
+      <p>A lightweight in-browser web browser built with HTML, CSS, and JavaScript.</p>
+
+      <h3>Recommended Websites:</h3>
+      <div class="shortcuts">
+        <button class="shortcut-btn" onclick="navigateTo('https://www.oldavista.com')">Old'aVista</button>
+        <button class="shortcut-btn" onclick="navigateTo('https://www.wikipedia.org')">Wikipedia</button>
+        <button class="shortcut-btn" onclick="navigateTo('https://archive.org')">Internet Archive</button>
+      </div>
+
+      <div class="notice-box">
+        <h3>ℹ️ Compatibility Notice</h3>
+        <p>This browser is designed for <strong>lightweight web pages</strong>, retro websites, and documentation hubs.</p>
+        <p>Heavy modern web applications (like YouTube, Google Maps, or Discord) may not load due to cross-origin browser security policies (CORS) or high resource demands.</p>
+        <p>some buttons wont work properly, you can take the code and make it better if you want.</p>
+      </div>
     </div>
 
-    <!-- Webseiten-Anzeigebereich -->
-    <iframe id="webFrame" class="content" src="https://www.bing.com"></iframe>
+    <!-- Web View Frame -->
+    <iframe id="webFrame" style="display: none;"></iframe>
+  </div>
 
-    <script>
-        const urlInput = document.getElementById('urlInput');
-        const goBtn = document.getElementById('goBtn');
-        const backBtn = document.getElementById('backBtn');
-        const forwardBtn = document.getElementById('forwardBtn');
-        const reloadBtn = document.getElementById('reloadBtn');
-        const webFrame = document.getElementById('webFrame');
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const webFrame = document.getElementById('webFrame');
+    const homePage = document.getElementById('homePage');
 
-        // Funktion zum Laden einer Seite
-        function navigate() {
-            let query = urlInput.value.trim();
-            if (!query) return;
+    function navigateTo(url) {
+      urlInput.value = url;
+      loadUrl();
+    }
 
-            // Überprüfen, ob es eine URL oder eine Suche ist
-            if (!query.startsWith('http://') && !query.startsWith('https://')) {
-                if (query.includes('.') && !query.includes(' ')) {
-                    query = 'https://' + query;
-                } else {
-                    // Wenn es keine Domain ist, starte eine Suche bei Bing
-                    query = 'https://www.bing.com/search?q=' + encodeURIComponent(query);
-                }
-            }
+    function loadUrl() {
+      let url = urlInput.value.trim();
+      if (!url) return;
 
-            webFrame.src = query;
-            urlInput.value = query;
-        }
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
 
-        // Event-Listener
-        goBtn.addEventListener('click', navigate);
+      homePage.style.display = 'none';
+      webFrame.style.display = 'block';
+      webFrame.src = url;
+    }
 
-        // Enter-Taste in der Adressleiste abfangen
-        urlInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                navigate();
-            }
-        });
+    function goHome() {
+      webFrame.style.display = 'none';
+      homePage.style.display = 'block';
+      webFrame.src = '';
+      urlInput.value = '';
+    }
 
-        // Navigationstasten
-        reloadBtn.addEventListener('click', () => {
-            webFrame.contentWindow.location.reload();
-        });
+    /* Zurück & Vorwärts Logik */
+    function goBack() {
+      if (webFrame.contentWindow) {
+        webFrame.contentWindow.history.back();
+      }
+    }
 
-        backBtn.addEventListener('click', () => {
-            window.history.back(); // Hinweis: Funktioniert aufgrund von Sicherheitsbeschränkungen nur eingeschränkt bei Iframes
-        });
+    function goForward() {
+      if (webFrame.contentWindow) {
+        webFrame.contentWindow.history.forward();
+      }
+    }
 
-        forwardBtn.addEventListener('click', () => {
-            window.history.forward();
-        });
-    </script>
-
+    urlInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') loadUrl();
+    });
+  </script>
 </body>
 </html>
